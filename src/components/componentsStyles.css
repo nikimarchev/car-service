@@ -1,0 +1,63 @@
+.navBarContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navBar {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  border-radius: 20px;
+  width: 20vw;
+}
+
+.accordionContainer {
+  width: 50vw;
+  height: 585px;
+  margin: 0 auto;
+  overflow-y: auto;
+  align-items: flex-start;
+}
+
+.accordionContent {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.customerVehicles {
+  margin: 0;
+  margin-left: 30px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.vehicleRepairs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.vehicleHeader {
+  display: flex;
+  font-weight: bold;
+  margin-top: 0px;
+  margin-bottom: 5px;
+  color: rgba(0, 0, 0, 0.76);
+}
+
+.vehicle {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.accordionHeaderName {
+  display: flex;
+  align-items: center;
+  margin: 10px;
+  font-weight: 550;
+  font-size: large;
+}
