@@ -7,7 +7,21 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFilledOutlined";
 import "./componentsStyles.css";
 
-const CustomerList = ({ userData }) => {
+interface Vehicle {
+  [key: string]: Array<[string, boolean]>;
+}
+
+interface Customer {
+  name: string;
+  phone: string;
+  vehicles: Vehicle;
+}
+
+interface CustomerListProps {
+  userData: Customer[];
+}
+
+const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange =
@@ -21,11 +35,11 @@ const CustomerList = ({ userData }) => {
         <Accordion
           key={index}
           className="accordionContent"
-          expanded={expanded === index}
-          onChange={handleChange(index)}
+          expanded={expanded === index.toString()}
+          onChange={handleChange(index.toString())}
           sx={{
-            ...(expanded === index && { borderRadius: "5px" }),
-            ...(expanded !== false && expanded !== index
+            ...(expanded === index.toString() && { borderRadius: "5px" }),
+            ...(expanded !== false && expanded !== index.toString()
               ? {
                   filter: "blur(1px)",
                   opacity: "0.5",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Input } from "@mui/material";
 import "./pagesStyles.css";
-import CustomerList from "../components/CustomerList.tsx";
+import CustomerList from "../components/CustomerList";
 
 const AllCustomers = () => {
   const [searchValue, setSearchValue] = useState("");
