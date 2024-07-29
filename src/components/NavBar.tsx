@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import AddIcon from "@mui/icons-material/Add";
 
 const NavBar = () => {
@@ -21,6 +22,19 @@ const NavBar = () => {
             setValue(newValue);
           }}
         >
+          <BottomNavigationAction
+            onClick={() => {
+              navigate("/");
+            }}
+            icon={
+              <HomeOutlinedIcon
+                sx={{
+                  color: "grey",
+                  fontSize: "2rem",
+                }}
+              />
+            }
+          />
           <BottomNavigationAction
             onClick={() => {
               navigate("/all-customers");

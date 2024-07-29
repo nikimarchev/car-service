@@ -1,3 +1,15 @@
+.homePage {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  font-weight: 900;
+  color: aliceblue;
+  font-family: "proxima-nova", sans-serif;
+  opacity: 0.9;
+}
+
 .listBox {
   flex-direction: column;
   margin: 0 auto;
