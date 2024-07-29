@@ -1,12 +1,16 @@
 import React from "react";
 import { Box, Button, TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import "./pagesStyles.css";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 type Inputs = {
   name: string;
   phone: string;
   vehicle: string;
+  vin: string;
   tasks: string;
 };
 
@@ -17,17 +21,32 @@ const AddCustomer = () => {
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const vehicle = data.vehicle + " - " + data.vin;
     const dataForServer = {
       name: data.name,
       phone: data.phone,
       vehicles: {
-        [data.vehicle]: data.tasks
-          .split(",")
-          .map((task: string) => [task.trim(), false]),
+        [vehicle]: data.tasks.split(",").map((task: string) => ({
+          task: task.trim(),
+          completed: false,
+        })),
       },
     };
     console.log(dataForServer);
+
+    try {
+      const docRef = await addDoc(collection(db, "customers"), {
+        customer: dataForServer,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      navigate("/all-customers");
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
 
   return (
@@ -66,12 +85,19 @@ const AddCustomer = () => {
           />
           <TextField
             className="formInput"
-            label="Належащи ремонти"
+            label="VIN номер"
             variant="filled"
             color="success"
-            {...register("tasks")}
+            {...register("vin")}
           />
         </Box>
+        <TextField
+          className="formInput"
+          label="Належащи ремонти"
+          variant="filled"
+          color="success"
+          {...register("tasks")}
+        />
         <Box className="errorMessages">
           {(errors.name && !errors.vehicle && (
             <span style={{ color: "red" }}>Добавете имената на клиента.</span>
