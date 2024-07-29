@@ -3,7 +3,7 @@ import { Box, Input } from "@mui/material";
 import "./pagesStyles.css";
 import CustomerList from "../components/CustomerList";
 
-import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 const AllCustomers = () => {
@@ -22,7 +22,6 @@ const AllCustomers = () => {
       }
     );
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   };
 

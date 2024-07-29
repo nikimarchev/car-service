@@ -8,7 +8,9 @@ import Checkbox from "@mui/material/Checkbox";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import "./componentsStyles.css";
 import { Box, Button, TextField } from "@mui/material";
-
+import BlockIcon from "@mui/icons-material/Block";
+import Popup from "./Popup";
+import { set } from "react-hook-form";
 interface Task {
   task: string;
   completed: boolean;
@@ -36,6 +38,8 @@ interface CustomerListProps {
 const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
   const [newTask, setNewTask] = useState<string>("");
+  const [openPopup, setOpenPopup] = useState<boolean>(false);
+  const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
   const handleOpenAccordionChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -73,6 +77,44 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
       .then(() => {
         console.log("Document successfully updated!");
         setNewTask("");
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+  };
+
+  const handleRemoveTask = async (
+    index: number,
+    userIndex: number,
+    vehicleIndex: number,
+    taskIndex: number
+  ) => {
+    const db = getFirestore();
+    const user = userData[index];
+    const vehicle = Object.keys(user.customer.vehicles)[vehicleIndex];
+    const task = user.customer.vehicles[vehicle][taskIndex];
+    if (!task) return;
+
+    const userRef = doc(db, "customers", userIndex.toString());
+    const updatedUserData = {
+      ...user,
+      customer: {
+        ...user.customer,
+        vehicles: {
+          ...user.customer.vehicles,
+          [vehicle]: [
+            ...user.customer.vehicles[vehicle].slice(0, taskIndex),
+            ...user.customer.vehicles[vehicle].slice(taskIndex + 1),
+          ],
+        },
+      },
+    };
+
+    await updateDoc(userRef, updatedUserData)
+      .then(() => {
+        console.log("Document successfully deleted!");
+        setOpenPopup(false);
+        setTaskToDelete(null);
       })
       .catch((error) => {
         console.error("Error updating document: ", error);
@@ -163,21 +205,52 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
                       </p>
                       <ul className="vehicleRepairs">
                         {tasks.map((task, taskIndex) => (
-                          <li key={taskIndex}>
-                            <Checkbox
-                              color="success"
-                              checked={task.completed}
-                              onChange={() =>
-                                handleTaskCompletion(
+                          <Box className="tasksBox">
+                            <BlockIcon
+                              className="deleteTaskIcon"
+                              onClick={() => {
+                                setOpenPopup(true);
+                                setTaskToDelete(taskIndex);
+                              }}
+                            />
+                            <Popup
+                              openPopup={openPopup}
+                              message="Желате ли да изтриете тази задача?"
+                              onClose={() =>
+                                handleRemoveTask(
                                   index,
                                   user.id,
                                   vehicleIndex,
                                   taskIndex
                                 )
                               }
+                              closePopup={() => setOpenPopup(false)}
                             />
-                            {task.task}
-                          </li>
+                            <li
+                              key={taskIndex}
+                              style={
+                                openPopup == true && taskToDelete !== taskIndex
+                                  ? {
+                                      opacity: "0.5",
+                                    }
+                                  : {}
+                              }
+                            >
+                              <Checkbox
+                                color="success"
+                                checked={task.completed}
+                                onChange={() =>
+                                  handleTaskCompletion(
+                                    index,
+                                    user.id,
+                                    vehicleIndex,
+                                    taskIndex
+                                  )
+                                }
+                              />
+                              {task.task}
+                            </li>
+                          </Box>
                         ))}
                       </ul>
                       <Box className="addTaskBox">

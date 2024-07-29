@@ -42,14 +42,26 @@ ul {
 
 .addTaskBox {
   display: flex;
-  flex-direction: row;
-  align-items: center;
   margin-top: 10px;
   margin-bottom: 20px;
 }
 
+.tasksBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+}
 .addTaskInput {
   margin-right: 10px;
+}
+
+.deleteTaskIcon {
+  color: rgb(106, 106, 106);
+  cursor: pointer;
+}
+.deleteTaskIcon:hover {
+  color: rgba(255, 0, 0, 0.842);
 }
 
 .vehicleHeader {
