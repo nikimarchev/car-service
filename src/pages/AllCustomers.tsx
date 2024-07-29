@@ -3,25 +3,32 @@ import { Box, Input } from "@mui/material";
 import "./pagesStyles.css";
 import CustomerList from "../components/CustomerList";
 
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 const AllCustomers = () => {
   const [searchValue, setSearchValue] = useState("");
   const [usersData, setUsersData] = useState<any>([]);
 
-  const fetchPost = async () => {
-    await getDocs(collection(db, "customers")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      setUsersData(newData);
-    });
+  const fetchPost = () => {
+    const unsubscribe = onSnapshot(
+      collection(db, "customers"),
+      (querySnapshot) => {
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setUsersData(newData);
+      }
+    );
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   };
 
   useEffect(() => {
-    fetchPost();
+    const unsubscribe = fetchPost();
+    return () => unsubscribe();
   }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

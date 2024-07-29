@@ -7,6 +7,7 @@ import DirectionsCarFilledOutlinedIcon from "@mui/icons-material/DirectionsCarFi
 import Checkbox from "@mui/material/Checkbox";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import "./componentsStyles.css";
+import { Box, Button, TextField } from "@mui/material";
 
 interface Task {
   task: string;
@@ -34,16 +35,49 @@ interface CustomerListProps {
 
 const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
-  const [localUserData, setLocalUserData] = useState<Customer[]>([]);
-
-  useEffect(() => {
-    setLocalUserData(userData || []);
-  }, [userData]);
+  const [newTask, setNewTask] = useState<string>("");
 
   const handleOpenAccordionChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
+
+  const handleAddTask = async (
+    index: number,
+    userIndex: number,
+    vehicleIndex: number
+  ) => {
+    if (newTask === "") return;
+    const db = getFirestore();
+    const user = userData[index];
+    const vehicle = Object.keys(user.customer.vehicles)[vehicleIndex];
+    const newTaskToAdd = {
+      task: newTask,
+      completed: false,
+    };
+    if (!newTaskToAdd.task) return;
+
+    const userRef = doc(db, "customers", userIndex.toString());
+    const updatedUserData = {
+      ...user,
+      customer: {
+        ...user.customer,
+        vehicles: {
+          ...user.customer.vehicles,
+          [vehicle]: [...user.customer.vehicles[vehicle], newTaskToAdd],
+        },
+      },
+    };
+
+    await updateDoc(userRef, updatedUserData)
+      .then(() => {
+        console.log("Document successfully updated!");
+        setNewTask("");
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+  };
 
   const handleTaskCompletion = async (
     index: number,
@@ -55,6 +89,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
     const user = userData[index];
     const vehicle = Object.keys(user.customer.vehicles)[vehicleIndex];
     const task = user.customer.vehicles[vehicle][taskIndex];
+    if (!task) return;
     task.completed = !task.completed;
 
     const userRef = doc(db, "customers", userIndex.toString());
@@ -76,9 +111,6 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
     await updateDoc(userRef, updatedUserData)
       .then(() => {
         console.log("Document successfully updated!");
-        const updatedUsers = [...localUserData];
-        updatedUsers[userIndex] = updatedUserData;
-        setLocalUserData(updatedUsers);
       })
       .catch((error) => {
         console.error("Error updating document: ", error);
@@ -87,8 +119,8 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
 
   return (
     <div className="accordionContainer">
-      {localUserData &&
-        localUserData.map((user, index) => (
+      {userData &&
+        userData.map((user, index) => (
           <Accordion
             key={index}
             className="accordionContent"
@@ -148,6 +180,25 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
                           </li>
                         ))}
                       </ul>
+                      <Box className="addTaskBox">
+                        <TextField
+                          className="addTaskInput"
+                          label="Нова задача"
+                          color="success"
+                          size="small"
+                          value={newTask}
+                          onChange={(e) => setNewTask(e.target.value)}
+                        />
+                        <Button
+                          variant="outlined"
+                          color="success"
+                          onClick={() =>
+                            handleAddTask(index, user.id, vehicleIndex)
+                          }
+                        >
+                          Добави
+                        </Button>
+                      </Box>
                     </li>
                   )
                 )}

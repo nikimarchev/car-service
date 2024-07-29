@@ -40,6 +40,18 @@ ul {
   align-items: flex-start;
 }
 
+.addTaskBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.addTaskInput {
+  margin-right: 10px;
+}
+
 .vehicleHeader {
   display: flex;
   font-weight: bold;
