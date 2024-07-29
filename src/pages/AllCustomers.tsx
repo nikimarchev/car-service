@@ -17,7 +17,6 @@ const AllCustomers = () => {
         id: doc.id,
       }));
       setUsersData(newData);
-      console.log(newData);
     });
   };
 

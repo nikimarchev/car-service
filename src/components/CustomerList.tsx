@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getFirestore, doc, updateDoc } from "firebase/firestore";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -24,6 +25,7 @@ interface User {
 
 interface Customer {
   customer: User;
+  id: number;
 }
 
 interface CustomerListProps {
@@ -32,21 +34,66 @@ interface CustomerListProps {
 
 const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
+  const [localUserData, setLocalUserData] = useState<Customer[]>([]);
 
-  const handleChange =
+  useEffect(() => {
+    setLocalUserData(userData || []);
+  }, [userData]);
+
+  const handleOpenAccordionChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
 
+  const handleTaskCompletion = async (
+    index: number,
+    userIndex: number,
+    vehicleIndex: number,
+    taskIndex: number
+  ) => {
+    const db = getFirestore();
+    const user = userData[index];
+    const vehicle = Object.keys(user.customer.vehicles)[vehicleIndex];
+    const task = user.customer.vehicles[vehicle][taskIndex];
+    task.completed = !task.completed;
+
+    const userRef = doc(db, "customers", userIndex.toString());
+    const updatedUserData = {
+      ...user,
+      customer: {
+        ...user.customer,
+        vehicles: {
+          ...user.customer.vehicles,
+          [vehicle]: [
+            ...user.customer.vehicles[vehicle].slice(0, taskIndex),
+            task,
+            ...user.customer.vehicles[vehicle].slice(taskIndex + 1),
+          ],
+        },
+      },
+    };
+
+    await updateDoc(userRef, updatedUserData)
+      .then(() => {
+        console.log("Document successfully updated!");
+        const updatedUsers = [...localUserData];
+        updatedUsers[userIndex] = updatedUserData;
+        setLocalUserData(updatedUsers);
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+  };
+
   return (
     <div className="accordionContainer">
-      {userData &&
-        userData.map((user, index) => (
+      {localUserData &&
+        localUserData.map((user, index) => (
           <Accordion
             key={index}
             className="accordionContent"
             expanded={expanded === index.toString()}
-            onChange={handleChange(index.toString())}
+            onChange={handleOpenAccordionChange(index.toString())}
             sx={{
               ...(expanded === index.toString() && { borderRadius: "5px" }),
               ...(expanded !== false && expanded !== index.toString()
@@ -88,6 +135,14 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
                             <Checkbox
                               color="success"
                               checked={task.completed}
+                              onChange={() =>
+                                handleTaskCompletion(
+                                  index,
+                                  user.id,
+                                  vehicleIndex,
+                                  taskIndex
+                                )
+                              }
                             />
                             {task.task}
                           </li>
