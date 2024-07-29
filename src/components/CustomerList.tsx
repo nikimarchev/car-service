@@ -200,7 +200,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ userData }) => {
                       className={vehicleIndex !== 0 ? "vehicle" : undefined}
                     >
                       <p className="vehicleHeader">
-                        <DirectionsCarFilledOutlinedIcon />
+                        <DirectionsCarFilledOutlinedIcon color="success" />
                         {vehicle}
                       </p>
                       <ul className="vehicleRepairs">

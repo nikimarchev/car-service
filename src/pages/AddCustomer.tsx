@@ -30,10 +30,12 @@ const AddCustomer = () => {
       name: data.name,
       phone: data.phone,
       vehicles: {
-        [vehicle]: data.tasks.split(",").map((task: string) => ({
-          task: task.trim(),
-          completed: false,
-        })),
+        [vehicle]: data.tasks
+          ? data.tasks.split(",").map((task: string) => ({
+              task: task.trim(),
+              completed: false,
+            }))
+          : [],
       },
     };
     console.log(dataForServer);
